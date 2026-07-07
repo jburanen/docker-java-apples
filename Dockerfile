@@ -1,14 +1,13 @@
+# syntax=docker/dockerfile:1
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    xfce4 xfce4-goodies xfce4-terminal tightvncserver wget curl gnupg2 sudo \
+    xfce4 xfce4-terminal tightvncserver wget curl gnupg2 sudo \
     openjdk-8-jre icedtea-netx \
     libasound2 libgtk2.0-0 libdbus-glib-1-2 libxt6 libxss1 libnss3 libxrender1 libxcomposite1 \
     libxrandr2 libxi6 libxcursor1 libxinerama1 xvfb gtk2-engines-pixbuf autocutsel \
-    alsa-utils pulseaudio \
-    build-essential autoconf automake libtool pkg-config \
     novnc websockify \
     && apt-get clean
 
@@ -56,11 +55,9 @@ ENV USER=docker
 # Set PATH to use our Firefox build
 ENV PATH="/home/docker/firefox45:${PATH}"
 
-# Copy Oracle JRE tarball into image
-COPY jdk-8u202-linux-x64.tar.gz /tmp/
-
-# Extract it and set up environment
-RUN tar -xzf /tmp/jdk-8u202-linux-x64.tar.gz -C /tmp
+# Mount the tarball at build time only — it never lands in a layer
+RUN --mount=type=bind,source=jdk-8u202-linux-x64.tar.gz,target=/tmp/jdk-8u202-linux-x64.tar.gz \
+    tar -xzf /tmp/jdk-8u202-linux-x64.tar.gz -C /tmp
 
 ENV JAVA_HOME=/tmp/jdk1.8.0_202/jre/
 ENV PATH=$JAVA_HOME/bin:$PATH
