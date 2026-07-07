@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VNC_PASSWORD: ${VNC_PASSWORD:-docker}
     platform: linux/amd64
     container_name: docker-java-apples
     ports:

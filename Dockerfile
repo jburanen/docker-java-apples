@@ -2,6 +2,7 @@
 FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+ARG VNC_PASSWORD=docker
 
 RUN apt-get update && apt-get install -y \
     xfce4 xfce4-terminal tightvncserver wget curl gnupg2 sudo \
@@ -38,7 +39,7 @@ WORKDIR /home/docker
 
 # Set up VNC
 RUN mkdir -p /home/docker/.vnc && \
-    echo "docker" | vncpasswd -f > /home/docker/.vnc/passwd && \
+    echo "${VNC_PASSWORD}" | vncpasswd -f > /home/docker/.vnc/passwd && \
     chmod 600 /home/docker/.vnc/passwd && \
     echo '#!/bin/sh\nautocutsel -fork &' > /home/docker/.vnc/xstartup && \
     echo '\nstartxfce4 &' >> /home/docker/.vnc/xstartup && \
