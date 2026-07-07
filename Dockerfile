@@ -5,8 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG VNC_PASSWORD=docker
 
 RUN apt-get update && apt-get install -y \
-    xfce4 xfce4-terminal tightvncserver wget curl gnupg2 sudo \
-    openjdk-8-jre icedtea-netx \
+    xfce4 xfce4-terminal tightvncserver wget curl sudo \
+    openjdk-8-jre icedtea-netx firefox \
     libasound2 libgtk2.0-0 libdbus-glib-1-2 libxt6 libxss1 libnss3 libxrender1 libxcomposite1 \
     libxrandr2 libxi6 libxcursor1 libxinerama1 xvfb gtk2-engines-pixbuf autocutsel \
     novnc websockify \
@@ -14,12 +14,16 @@ RUN apt-get update && apt-get install -y \
 
 RUN apt-get purge -y gvfs gvfs-backends gvfs-daemons
 
+# Allow legacy IPMI/iDRAC firmware that signs JARs with MD5/SHA1/weak RSA
+# and negotiates weak TLS ciphers. Java will still negotiate strong ciphers
+# with modern servers — it uses whatever the server offers.
+RUN sed -i \
+    -e 's/^jdk.jar.disabledAlgorithms=.*/jdk.jar.disabledAlgorithms=/' \
+    -e 's/^jdk.tls.disabledAlgorithms=.*/jdk.tls.disabledAlgorithms=/' \
+    /etc/java-8-openjdk/security/java.security
+
 # Create a user
 RUN useradd -s /bin/bash -m docker && echo "docker:docker" | chpasswd && adduser docker sudo
-
-# Setup Java env
-RUN echo "PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/tmp/jdk1.8.0_202/bin/\"" > /etc/environment
-RUN echo "MOZ_PLUGIN_PATH=/home/docker/.mozilla/plugins" >> /etc/environment
 
 RUN mkdir -p /home/docker/.java/deployment /home/docker/.java/deployment/security/
 COPY java_config/deployment.properties /home/docker/.java/deployment/
@@ -27,7 +31,7 @@ COPY java_config/exception.sites /home/docker/.java/deployment/security/
 
 RUN touch /home/docker/.Xauthority && chown docker:docker /home/docker/.Xauthority
 
-# Create Firefox shotcut
+# Create Firefox shortcut on desktop
 RUN mkdir /home/docker/.icons/ /home/docker/Desktop
 COPY firefox_theme/firefox.desktop /home/docker/Desktop
 COPY firefox_theme/firefox.png /home/docker/.icons/
@@ -45,29 +49,9 @@ RUN mkdir -p /home/docker/.vnc && \
     echo '\nstartxfce4 &' >> /home/docker/.vnc/xstartup && \
     chmod +x /home/docker/.vnc/xstartup
 
-# Download and install Firefox 45 ESR manually
-RUN mkdir -p /home/docker/firefox45 && \
-    wget -qO- https://ftp.mozilla.org/pub/firefox/releases/45.9.0esr/linux-x86_64/en-US/firefox-45.9.0esr.tar.bz2 \
-    | tar -xj -C /home/docker/firefox45 --strip-components=1
-
-# Set USER env var for VNC
-ENV USER=docker
-
-# Set PATH to use our Firefox build
-ENV PATH="/home/docker/firefox45:${PATH}"
-
-# Mount the tarball at build time only — it never lands in a layer
-RUN --mount=type=bind,source=jdk-8u202-linux-x64.tar.gz,target=/tmp/jdk-8u202-linux-x64.tar.gz \
-    tar -xzf /tmp/jdk-8u202-linux-x64.tar.gz -C /tmp
-
-ENV JAVA_HOME=/tmp/jdk1.8.0_202/jre/
-ENV PATH=$JAVA_HOME/bin:$PATH
-
-# Create plugin directory and symlink
-RUN mkdir -p /home/docker/.mozilla/plugins \
-    && ln -s $JAVA_HOME/lib/amd64/libnpjp2.so /home/docker/.mozilla/plugins/libnpjp2.so
-
 RUN echo 'ulimit -c unlimited' >> /home/docker/.bashrc
+
+ENV USER=docker
 
 # Expose VNC and noVNC web ports
 EXPOSE 5901 6080

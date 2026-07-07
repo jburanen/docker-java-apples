@@ -17,14 +17,7 @@ git clone https://github.com/heroseloi/docker-java-apples.git
 cd docker-java-apples
 ```
 
-Run `setup.sh` once to download and verify the required JDK package:
-
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-Then build and start the container:
+Build and start the container:
 
 ```bash
 docker-compose up --build

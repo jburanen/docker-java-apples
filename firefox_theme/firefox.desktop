@@ -1,10 +1,9 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Firefox 45
-Comment=Legacy Java-compatible Firefox
-Exec=/home/docker/firefox45/firefox
+Name=Firefox
+Comment=Web Browser
+Exec=/usr/bin/firefox
 Icon=/home/docker/.icons/firefox.png
 Terminal=false
 Categories=Network;WebBrowser;
-Path=/home/docker/firefox45
