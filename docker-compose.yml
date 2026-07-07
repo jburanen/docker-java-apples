@@ -1,0 +1,11 @@
+services:
+  docker-java-apples:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: docker-java-apples
+    ports:
+      - "0.0.0.0:5901:5901"
+      - "0.0.0.0:6080:6080"
+    restart: unless-stopped

@@ -12,22 +12,35 @@ This project makes it easy to access old-school Java-based tools like **IPMI**, 
 
 ## Quick Start
 
-You can get up and running with just a few commands:
-
 ```bash
 git clone https://github.com/heroseloi/docker-java-apples.git
 cd docker-java-apples
-chmod +x run.sh
-./run.sh
 ```
 
-Then connect to the desktop using your VNC client:
+Run `setup.sh` once to download and verify the required JDK package:
 
 ```bash
-localhost:5901
+chmod +x setup.sh
+./setup.sh
 ```
 
+Then build and start the container:
+
+```bash
+docker-compose up --build
+```
+
+**Browser (noVNC):** open [http://localhost:6080/vnc.html](http://localhost:6080/vnc.html) and enter the password when prompted.
+
+**Native VNC client:** connect to `localhost:5901`.
+
 **Password: docker**
+
+To stop the container:
+
+```bash
+docker-compose down
+```
 
 **Important:**
 

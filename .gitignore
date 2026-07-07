@@ -1,0 +1,10 @@
+# JDK tarball — downloaded by setup.sh, too large to track
+jdk-8u202-linux-x64.tar.gz
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp

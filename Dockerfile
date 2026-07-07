@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 libxi6 libxcursor1 libxinerama1 xvfb gtk2-engines-pixbuf autocutsel \
     alsa-utils pulseaudio \
     build-essential autoconf automake libtool pkg-config \
+    novnc websockify \
     && apt-get clean
 
 RUN apt-get purge -y gvfs gvfs-backends gvfs-daemons
@@ -70,8 +71,11 @@ RUN mkdir -p /home/docker/.mozilla/plugins \
 
 RUN echo 'ulimit -c unlimited' >> /home/docker/.bashrc
 
-# Expose VNC port
-EXPOSE 5901
+# Expose VNC and noVNC web ports
+EXPOSE 5901 6080
 
-# Start VNC server safely and keep container alive
-CMD bash -c "rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 && vncserver :1 -geometry 1280x800 -depth 24 && tail -F /home/docker/.vnc/*.log"
+# Start VNC server and noVNC web proxy, keep container alive via log tail
+CMD bash -c "rm -f /tmp/.X1-lock /tmp/.X11-unix/X1 && \
+    vncserver :1 -geometry 1280x800 -depth 24 && \
+    websockify --web=/usr/share/novnc/ --wrap-mode=ignore 6080 localhost:5901 & \
+    tail -F /home/docker/.vnc/*.log"

@@ -1,0 +1,8 @@
+# Large binary — downloaded by setup.sh, not useful for code context
+jdk-8u202-linux-x64.tar.gz
+
+# Screenshot
+screenshot.png
+
+# Git internals
+.git/
